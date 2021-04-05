@@ -1,0 +1,381 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  max-width: 100vw;
+  margin: 0;
+  background-color: #5b5b5c;
+}
+
+h1 {
+  padding: 0;
+  margin: 0;
+}
+
+h2 {
+  padding: 0;
+  margin: 0;
+}
+
+.wrapper {
+  display: flex;
+  flex-flow: column;
+  margin: 0;
+}
+
+#header {
+  padding: 10px 10px 5px 20px;
+  width: 100%;
+  background-color: white;
+  border-bottom: 7px solid #ff9800;
+  display: flex;
+}
+
+.lien-header {
+  display: flex;
+  text-decoration: none;
+  color: black;
+  align-self: flex-start;
+}
+
+.lien-header > h1 {
+  grid-column: 2;
+  font-size: 2.5em;
+  font-family: "Lucida Grande", "Lucida Sans Unicode", sans-serif;
+  font-weight: 550;
+  padding-left: 15px;
+  padding-top: 5px;
+}
+
+.logo {
+  padding-bottom: 10px;
+  width: 50px;
+  height: 70px;
+}
+
+#navigation {
+  width: 100%;
+  background-color: #333333;
+  z-index: 2;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-flow: row;
+  margin-bottom: 0;
+}
+
+#navigation > a {
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 15px 20px;
+  text-decoration: none;
+  color: white;
+}
+
+#navigation > a:last-of-type {
+  margin-left: auto;
+}
+
+.nonactive:hover {
+  background-color: black;
+}
+
+.active {
+  background-color: #28b928;
+}
+
+.serie {
+  margin-top: 0;
+  font-family: "Lucida Grande", "Lucida Sans Unicode", sans-serif;
+  color: white;
+  background-color: #424246;
+  width: 100%;
+  padding: 8px 20px;
+  font-size: 2em;
+  font-weight: normal;
+  margin-bottom: 0;
+}
+
+#main {
+  display: grid;
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 1600px;
+  grid-template: 80% 20%;
+}
+
+#bande {
+  grid-column: 2;
+  background-color: #242425;
+  display: flex;
+  flex-flow: column;
+  padding-top: 15px;
+  padding-right: 8%;
+  height: 100%;
+  padding-bottom: 1.5%;
+
+}
+
+#series {
+  position: sticky;
+  top: 60px;
+}
+
+#series > p {
+  font-family: "Lucida Sans";
+  font-size: 1.2em;
+  color: white;
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+#series > a {
+  display: flex;
+  font-size: 1.1em;
+  align-items: center;
+  border-radius: 5px;
+  margin-right: 10px;
+  font-family: "Calibri", sans-serif;
+  padding-left: 10px;
+  color: white;
+  text-decoration: none;
+  background-color: #424246;
+  margin-bottom: 10px;
+}
+
+#series > a:last-of-type {
+  margin-bottom: 0;
+}
+
+#series > a:hover {
+  background-color: #28b928;
+}
+
+.mini {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-right: 10px;
+  height: 55.375px;
+  width: auto;
+}
+
+.container {
+  grid-column: 1;
+  background-color: #242425;
+  padding-top: 2%;
+  padding-right: 1%;
+  padding-left: 2%;
+  display: flex;
+  flex-flow: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  color: #ffffff;
+  font-family: "Calibri", sans-serif;
+}
+
+.section {
+  width: 96%;
+  margin-bottom: 2%;
+  border-radius: 5px;
+  background-color: #424242;
+  display: flex;
+  padding: 15px;
+}
+
+#acteurs {
+  flex-flow: column;
+}
+
+.cartes {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-around;
+}
+
+.carte_acteur {
+  padding-top: 10px;
+  width: 15%;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+#acteurs > .titre {
+  padding-left: 1.5%;
+  padding-bottom: 10px;
+}
+
+.carte_acteur > img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.carte_acteur > p {
+  word-wrap: normal;
+  text-align: center;
+  margin: 0;
+}
+
+.nom {
+  font-weight: bold;
+  font-size: 1.2em;
+  padding-bottom: 5px;
+  padding-top: 5px;
+}
+
+.content {
+  padding-top: 2.5px;
+  padding-left: 10px;
+  align-self: flex-start;
+}
+
+.titre {
+  text-decoration: none;
+  color: white;
+  font-size: 1.5em;
+  font-family: "Lucida Sans";
+  margin: 0;
+}
+
+.thumbnail {
+  border-radius: 10px;
+  width: 150px;
+  height: 221.5px;
+  margin-right: 5px;
+}
+
+.details {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  grid-row: 3;
+  grid-column: 2;
+}
+
+.score {
+  padding-right: 5px;
+  padding-top: 8px;
+}
+
+.etoiles {
+  position: relative;
+  display: flex;
+  flex-flow: column nowrap;
+  align-self: flex-start;
+  text-align: center;
+}
+
+#pourcentage {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin: 0;
+  
+}
+
+.etoiles-pleines {
+  display: flex;
+  flex-flow: column nowrap;
+  align-self: center;
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  color: orange;
+  z-index: 1;
+}
+
+.etoiles-vides {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.etoiles i {
+  padding-bottom: 5px;
+}
+
+#footer {
+  color: white;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: #5b5b5c;
+  border-bottom: 7px solid #ff9800;
+}
+
+.copyright {
+  align-self: center;
+  padding-right: 5px;
+}
+
+#copyright-texte {
+  font-family: "Calibri", sans-serif
+}
+
+@media only screen and (max-width: 1024px) {
+  .wrapper {
+    display: flex;
+    flex-flow: column;
+  }
+
+  #bande {
+    display: none;
+  }
+
+  .container {
+    width: 100%;
+  }
+
+  .section {
+    width: 95%;
+    margin-bottom: 15px;
+  }
+}
+
+@media only screen and (max-width: 648px) {
+  #navigation {
+    flex-wrap: wrap;
+    justify-content: center;
+    position: relative;
+  }
+
+  #navigation > a:last-of-type {
+    margin-left: 0;
+  }
+
+  .container {
+    padding-top: 15px;
+  }
+
+  #navigation > a {
+    width: 100%;
+  }
+
+  .cartes {
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .carte_acteur {
+    padding-top: 10px;
+    width: 28%;
+  }
+  .carte_acteur > img {
+    width: 100%;
+    height: auto;
+  }
+
+  .score {
+    float: left;
+    margin-right: 9px;
+  }
+
+  .section {
+    display: block;
+  }
+
+  .thumbnail {
+    margin-right: 20px;
+    float: left;
+  }
+}
