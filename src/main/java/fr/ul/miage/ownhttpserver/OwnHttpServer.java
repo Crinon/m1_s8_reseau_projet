@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -40,11 +41,13 @@ public class OwnHttpServer implements Runnable{
 	private String resourcesName= "miniweb";
 	private File resourceFolder;
 
-	public OwnHttpServer(Socket socket, String resourcesName) {
+	public OwnHttpServer(Socket socket, String resourcesName) throws URISyntaxException {
 		this.resourcesName = resourcesName;
 		this.socket=socket;
-		this.resourceFolder = new File(getClass().getResource("/").getPath()+"/"+this.resourcesName);
-		System.out.println(this.resourceFolder);
+		
+		String resourcePath = getClass().getResource("/").toURI().getPath();
+		this.resourceFolder = new File(resourcePath+"/"+this.resourcesName);
+		System.out.println("------"+this.resourceFolder.getPath()+"-------");
 	}
 
 	@Override
@@ -94,6 +97,7 @@ public class OwnHttpServer implements Runnable{
             
             File file = new File(this.resourceFolder.getAbsolutePath()+"/"+nomFichier);
             
+            
             System.out.println("asked resource : "+file.getPath());
             
             if( !testPassword(file.getParentFile(), request.base64Authentification)) {
@@ -128,11 +132,9 @@ public class OwnHttpServer implements Runnable{
 	}
 
 	private void sendFileContent(String nomFichier, DataOutputStream data) throws IOException {
-		
-		//Path chemin = Paths.get(this.path+nomFichier);
-
 		File file = new File(this.resourceFolder.getAbsolutePath()+"/"+nomFichier);
 		
+		System.out.println("Le vrai path:"+file.getPath());
 	
         // Le tableau de bytes va recevoir byte par byte ceux composant le fichier
         // Envoi du message de bonne reception de la requete de l'utilisateur
@@ -175,7 +177,9 @@ public class OwnHttpServer implements Runnable{
         fileIn.close();
 		}
         data.writeBytes("\r\n");
+        if(tableau != null) {
         data.write(tableau);
+        }
         
 	}
 
