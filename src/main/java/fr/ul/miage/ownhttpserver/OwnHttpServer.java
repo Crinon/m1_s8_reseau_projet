@@ -175,7 +175,9 @@ public class OwnHttpServer implements Runnable{
         fileIn.close();
 		}
         data.writeBytes("\r\n");
-        data.write(tableau);
+        if(tableau != null) {
+            data.write(tableau);
+        }
         
 	}
 
