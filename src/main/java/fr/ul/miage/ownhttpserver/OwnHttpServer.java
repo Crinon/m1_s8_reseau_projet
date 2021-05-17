@@ -39,11 +39,9 @@ public class OwnHttpServer implements Runnable{
 	private String resourcesName= "miniweb";
 	private String path;
 
-	public OwnHttpServer(Socket socket) {
+	public OwnHttpServer(Socket socket, String resourcesName) {
+		this.resourcesName = resourcesName;
 		this.socket=socket;
-		 File resourcesDirectory = new File("src/main/java");
-		this.path = System.getProperty("user.dir")+File.separator+resourcesName; //DEFAULT
-		
 		this.path = getClass().getResource("/").getPath()+"/"+resourcesName;
 		System.out.println(this.path);
 	}

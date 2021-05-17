@@ -16,7 +16,7 @@ public class Main {
         ServerSocket srv = new ServerSocket(port,1, host);
         while(true) {
         	Socket socket = srv.accept();
-        	OwnHttpServer myownserver = new OwnHttpServer(socket);
+        	OwnHttpServer myownserver = new OwnHttpServer(socket, "miniweb");
             System.out.println("Server started on port "+port);
             
     		Thread thread = new Thread(myownserver);
