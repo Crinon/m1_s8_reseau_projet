@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 
 public class Main {
 	static final int port = 4006;
+	
 	public static void main(String[] args) throws IOException, URISyntaxException {
 		InetAddress host = InetAddress.getByName("0.0.0.0");
     	System.out.println("Main launched with port "+port);
@@ -16,6 +17,9 @@ public class Main {
         	Socket socket = srv.accept();
         	OwnHttpServer myownserver = new OwnHttpServer(socket, "maxi web");
             System.out.println("Server started on port "+port);
+            
+    		Thread thread = new Thread(myownserver);
+    		thread.start();    
         }
 	}
 }
