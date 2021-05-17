@@ -9,7 +9,7 @@ import java.net.URISyntaxException;
 public class Main {
 	
 
-	static final int port = 4000;
+	static final int port = 4006;
 	
 	public static void main(String[] args) throws IOException, URISyntaxException {
 		InetAddress host = InetAddress.getByName("0.0.0.0");
@@ -17,7 +17,7 @@ public class Main {
         ServerSocket srv = new ServerSocket(port,1, host);
         while(true) {
         	Socket socket = srv.accept();
-        	OwnHttpServer myownserver = new OwnHttpServer(socket, "miniweb");
+        	OwnHttpServer myownserver = new OwnHttpServer(socket, "maxi web");
             System.out.println("Server started on port "+port);
             
     		Thread thread = new Thread(myownserver);

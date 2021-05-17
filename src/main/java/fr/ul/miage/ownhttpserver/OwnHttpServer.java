@@ -38,7 +38,7 @@ public class OwnHttpServer implements Runnable{
 	private Socket socket;
 	
 	private String homepage = "index.html";
-	private String resourcesName= "miniweb";
+	private String resourcesName= "maxi web";
 	private File resourceFolder;
 
 	public OwnHttpServer(Socket socket, String resourcesName) throws URISyntaxException {
@@ -108,7 +108,6 @@ public class OwnHttpServer implements Runnable{
             
             // Les donn_es, en bytes, de l'index sont envoy_es
             
-            System.out.println("close");
             data.flush();
             data.close();
             rd.close();
