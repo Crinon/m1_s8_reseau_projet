@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,19 +38,14 @@ public class OwnHttpServer implements Runnable{
 	
 	private String homepage = "index.html";
 	private String resourcesName= "miniweb";
-	private String path;
+	private File resourceFolder;
 
 	public OwnHttpServer(Socket socket, String resourcesName) {
 		this.resourcesName = resourcesName;
 		this.socket=socket;
-		this.path = getClass().getResource("/").getPath()+"/"+resourcesName;
-		System.out.println(this.path);
+		this.resourceFolder = new File(getClass().getResource("/").getPath()+"/"+this.resourcesName);
+		System.out.println(this.resourceFolder);
 	}
-	
-	public void setPath(String path) {
-		this.path = path;
-	}
-	
 
 	@Override
 	public void run() {
@@ -96,7 +92,7 @@ public class OwnHttpServer implements Runnable{
             
             System.out.println(nomFichier);
             
-            File file = new File(this.path+"/"+nomFichier);
+            File file = new File(this.resourceFolder.getAbsolutePath()+"/"+nomFichier);
             
             System.out.println("asked resource : "+file.getPath());
             
@@ -135,17 +131,17 @@ public class OwnHttpServer implements Runnable{
 		
 		//Path chemin = Paths.get(this.path+nomFichier);
 
-		File file = new File(this.path+"/"+nomFichier);
+		File file = new File(this.resourceFolder.getAbsolutePath()+"/"+nomFichier);
 		
 	
         // Le tableau de bytes va recevoir byte par byte ceux composant le fichier
         // Envoi du message de bonne reception de la requete de l'utilisateur
         if(!file.exists()) {
         	data.writeBytes("HTTP/1.1 404 Not Found\r\n");
-        	file = new File(this.path+"/"+notFoundPageName);
+        	file = new File(this.resourceFolder.getAbsolutePath()+"/"+notFoundPageName);
         }else if(file.isDirectory()){
         	data.writeBytes("HTTP/1.1 404 Not Found\r\n");
-        	file = new File(this.path+"/"+notFoundPageName);
+        	file = new File(this.resourceFolder.getAbsolutePath()+"/"+notFoundPageName);
         }else {
         	data.writeBytes("HTTP/1.1 200 OK\r\n");
         	
@@ -166,7 +162,8 @@ public class OwnHttpServer implements Runnable{
 	
 	
 	private void writeFileContent(DataOutputStream data, File file) throws IOException {
-		byte[] tableau;
+		byte[] tableau = null;
+		if(file.exists()) {
 		Path path = Paths.get(file.getPath());
         tableau = Files.readAllBytes(path);
         
@@ -175,9 +172,11 @@ public class OwnHttpServer implements Runnable{
         // Mention de la longueur du fichier qui va _tre transmis (m_thode available())
         data.writeBytes("Content-Length: " + Integer.toString(fileIn.available()) + "\r\n");
         // Ligne vide avant l'envoi du tableau de bytes
+        fileIn.close();
+		}
         data.writeBytes("\r\n");
         data.write(tableau);
-        fileIn.close();
+        
 	}
 
 	//authentification (pas de md5 pour le moment)
