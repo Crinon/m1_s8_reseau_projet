@@ -3,6 +3,7 @@ package fr.ul.miage.ownhttpserver;
 public class Request {
 	
 	String base64Authentification;
+	String host;
 	
 	boolean isBasicAuth;
 	
@@ -38,6 +39,10 @@ public class Request {
 		case "Authorization:":
 			setAuthorizationHeader(words[1], words[2]);
 			break;
+		case "Host:":
+            this.host = words[1];
+            System.out.println("nom d'hôte : "+host);
+            break;
 		}
 	}
 	

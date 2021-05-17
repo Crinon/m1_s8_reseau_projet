@@ -38,7 +38,7 @@ public class OwnHttpServer implements Runnable{
 	private Socket socket;
 	
 	private String homepage = "index.html";
-	private String resourcesName= "maxi web";
+	private String resourcesName= "miniweb";
 	private File resourceFolder;
 
 	public OwnHttpServer(Socket socket, String resourcesName) throws URISyntaxException {
@@ -84,7 +84,6 @@ public class OwnHttpServer implements Runnable{
             
             
             Request request = new Request(requestString);
-            
 	        
 	        // Si on ne met pas d'URI on donne la homepage
             if (HOMEPAGE.equals(request.requestURI)) {
