@@ -35,13 +35,17 @@ public class OwnHttpServer implements Runnable{
 	// Attribut
 	private Socket socket;
 	
-	private String homepage = "main_home.html";
-	private String resourcesName= "resources/";
+	private String homepage = "index.html";
+	private String resourcesName= "miniweb";
 	private String path;
 
 	public OwnHttpServer(Socket socket) {
 		this.socket=socket;
+		 File resourcesDirectory = new File("src/main/java");
 		this.path = System.getProperty("user.dir")+File.separator+resourcesName; //DEFAULT
+		
+		this.path = getClass().getResource("/").getPath()+"/"+resourcesName;
+		System.out.println(this.path);
 	}
 	
 	public void setPath(String path) {
@@ -95,6 +99,9 @@ public class OwnHttpServer implements Runnable{
             System.out.println(nomFichier);
             
             File file = new File(this.path+"/"+nomFichier);
+            
+            System.out.println("asked resource : "+file.getPath());
+            
             if( !testPassword(file.getParentFile(), request.base64Authentification)) {
             	sendUnallowed(data);
             }else {
@@ -179,7 +186,10 @@ public class OwnHttpServer implements Runnable{
 	public boolean testPassword(File folder, String base64) throws IOException {
 		File passwordFile = new File(folder.getPath()+File.separator+OwnHttpServer.PASSWORDFILE);
 		System.out.println("password: "+passwordFile.getPath());
-		if(passwordFile.exists()) {
+		if(!passwordFile.exists()) {
+			return true;
+		}
+		
 			if(base64 == null || "".equalsIgnoreCase(base64))
 				return false;
 			
@@ -201,7 +211,6 @@ public class OwnHttpServer implements Runnable{
 				}
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
-			} 
 		}
 		return false;
 	}
