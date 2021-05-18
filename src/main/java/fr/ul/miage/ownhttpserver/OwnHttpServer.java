@@ -37,6 +37,8 @@ public class OwnHttpServer implements Runnable{
 	// Attribut
 	private Socket socket;
 	
+	
+	private String folderpage = "/help.html";
 	private String homepage = "index.html";
 	private String resourcesName= "miniweb";
 	private File resourceFolder;
@@ -85,24 +87,27 @@ public class OwnHttpServer implements Runnable{
             
             Request request = new Request(requestString);
 	        
+            
+            
 	        // Si on ne met pas d'URI on donne la homepage
             if (HOMEPAGE.equals(request.requestURI)) {
                 nomFichier = homepage;
-            } else {
+            } else if (folderpage.equals(request.requestURI)){
+            	nomFichier = "";
+            }else{
                 nomFichier = request.requestURI;
             }
+
             
-            System.out.println(nomFichier);
-            
-            File file = new File(this.resourceFolder.getAbsolutePath()+"/"+nomFichier);
-            
-            
-            System.out.println("asked resource : "+file.getPath());
+            File file  = new File(this.resourceFolder.getAbsolutePath()+"/"+nomFichier);
+            if(nomFichier.equals("")) {
+            	file =  new File(this.resourceFolder.getAbsolutePath());
+            }
             
             if( !testPassword(file.getParentFile(), request.base64Authentification)) {
             	sendUnallowed(data);
             }else {
-            	sendFileContent(nomFichier, data);
+            	sendFileContent(nomFichier, data, folderpage.equals(request.requestURI));
             }
             
             // Les donn_es, en bytes, de l'index sont envoy_es
@@ -129,7 +134,7 @@ public class OwnHttpServer implements Runnable{
 		data.writeBytes("HTTP/1.1 403 Forbidden\r\n");
 	}
 
-	private void sendFileContent(String nomFichier, DataOutputStream data) throws IOException {
+	private void sendFileContent(String nomFichier, DataOutputStream data, boolean root) throws IOException {
 		File file = new File(this.resourceFolder.getAbsolutePath()+"/"+nomFichier);
 		
 		System.out.println("Le vrai path:"+file.getPath());
@@ -137,11 +142,13 @@ public class OwnHttpServer implements Runnable{
         // Le tableau de bytes va recevoir byte par byte ceux composant le fichier
         // Envoi du message de bonne reception de la requete de l'utilisateur
         if(!file.exists()) {
+        	System.out.println("pas exist");
         	data.writeBytes("HTTP/1.1 404 Not Found\r\n");
         	file = new File(this.resourceFolder.getAbsolutePath()+"/"+notFoundPageName);
         }else if(file.isDirectory()){
-        	data.writeBytes("HTTP/1.1 404 Not Found\r\n");
-        	file = new File(this.resourceFolder.getAbsolutePath()+"/"+notFoundPageName);
+        	System.out.println("folder help");
+        	data.writeBytes("HTTP/1.1 200 OK\r\n");
+        	data.writeBytes("Content-Type: text/html\r\n");
         }else {
         	data.writeBytes("HTTP/1.1 200 OK\r\n");
         	
@@ -155,15 +162,19 @@ public class OwnHttpServer implements Runnable{
     		}
         }
 		
-        writeFileContent(data,file);
+        writeFileContent(data,file, root);
 	}
 
 	
 	
 	
-	private void writeFileContent(DataOutputStream data, File file) throws IOException {
+	private void writeFileContent(DataOutputStream data, File file, boolean root) throws IOException {
 		byte[] tableau = null;
 		if(file.exists()) {
+				if(file.isDirectory()) {
+					writeFolderHierarchy(data,file, root);
+					return;
+				}
 		Path path = Paths.get(file.getPath());
         tableau = Files.readAllBytes(path);
         
@@ -179,6 +190,20 @@ public class OwnHttpServer implements Runnable{
         	data.write(tableau);
         }
         
+	}
+	
+	private void writeFolderHierarchy(DataOutputStream data, File folder, boolean root) throws IOException {
+		StringBuilder htmlCode = new StringBuilder();
+		String start = folder.getName()+"/";
+		if(root)
+			start = "/";
+		for(File file : folder.listFiles()) {
+			htmlCode.append("<a href=\""+start+file.getName()+"\">"+file.getName()+"</a></br>");
+		}
+		
+		data.writeBytes("Content-Length: " + htmlCode.toString().getBytes().length + "\r\n");
+		data.writeBytes("\r\n");
+		data.write(htmlCode.toString().getBytes());
 	}
 
 	//authentification (pas de md5 pour le moment)
