@@ -7,8 +7,9 @@ public class Request {
 	RequestType requestType;
 	String requestURI;
 
-	public Request(String request) {
-		this.setRequestFromString(request);
+
+	public Request(String requestString) {
+		this.setRequestFromString(requestString);
 	}
 
 	public void setRequestFromString(String request) {

@@ -9,11 +9,9 @@ import java.net.URISyntaxException;
 public class RunServer extends Thread{
 
 	private int port;
-	private String[] sitesList;
 	
-	public RunServer(int port, String[] sitesList) throws IOException, URISyntaxException {
+	public RunServer(int port) throws IOException, URISyntaxException {
 		this.port=port;
-		this.sitesList=sitesList;
 	}
 	
 	public void run() {
@@ -23,7 +21,7 @@ public class RunServer extends Thread{
 	        ServerSocket srv = new ServerSocket(this.port,1, host);
 	        while(true) {
 	        	Socket socket = srv.accept();
-	        	OwnHttpServer myownserver = new OwnHttpServer(socket, sitesList);
+	        	OwnHttpServer myownserver = new OwnHttpServer(socket);
 	            System.out.println("Server started on port "+port);
 	    		Thread thread = new Thread(myownserver);
 	    		thread.start();    

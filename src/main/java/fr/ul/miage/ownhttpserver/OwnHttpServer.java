@@ -35,11 +35,9 @@ public class OwnHttpServer implements Runnable{
 	private String folderpage = "/help.html";
 	private String homepage = "index.html";
 	private File resourceFolder;
-	private String[] sitesList ;
 
-	public OwnHttpServer(Socket socket, String[] sitesList) throws URISyntaxException {
+	public OwnHttpServer(Socket socket) throws URISyntaxException {
 		this.socket=socket;
-		this.sitesList = sitesList;
 		this.resourcePath = getClass().getResource("/").toURI().getPath();
 	}
 
@@ -91,7 +89,7 @@ public class OwnHttpServer implements Runnable{
 
             
             File file  = new File(this.resourceFolder.getAbsolutePath()+"/"+nomFichier);
-            if(nomFichier.equals("")) {
+            if("".equals(nomFichier)) {
             	file =  new File(this.resourceFolder.getAbsolutePath());
             }
             

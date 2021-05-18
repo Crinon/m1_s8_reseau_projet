@@ -1,2 +1,5 @@
 port=4000
-sites=miniweb,dopetrope,projethtmldut,verti
+miniweb.miage=miniweb
+dopetrope.miage=dopetrope
+projethtmldut.miage=projethtmldut
+verti.miage=verti
