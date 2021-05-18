@@ -1,4 +1,2 @@
-miniweb=4000
-dopetrope=4001
-projethtmldut=4002
-verti=4003
+port=4000
+sites=miniweb,dopetrope,projethtmldut,verti

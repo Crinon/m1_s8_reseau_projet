@@ -17,39 +17,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-
 public class OwnHttpServer implements Runnable{ 
-	
-	
 	// Constantes
 	private static final String HOMEPAGE = "/";
 	private static final String PASSWORDFILE = ".htpasswd";
-	private static final String KEEPALIVE = "Connection: keep-alive";
 	
 	// Messages
-	
 	public static final String adressMessage = "adresse IP : %s";
 	public static final String runMessage = "Traitement d'une socket";
 	
-	//configurations
+	// Configurations
 	public static String notFoundPageName = "404.html";
 
 	// Attribut
 	private Socket socket;
-	
-	
+	private String resourcePath;
 	private String folderpage = "/help.html";
 	private String homepage = "index.html";
-	private String resourcesName= "miniweb";
 	private File resourceFolder;
+	private String[] sitesList ;
 
-	public OwnHttpServer(Socket socket, String resourcesName) throws URISyntaxException {
-		this.resourcesName = resourcesName;
+	public OwnHttpServer(Socket socket, String[] sitesList) throws URISyntaxException {
 		this.socket=socket;
-		
-		String resourcePath = getClass().getResource("/").toURI().getPath();
-		this.resourceFolder = new File(resourcePath+"/"+this.resourcesName);
-		System.out.println("------"+this.resourceFolder.getPath()+"-------");
+		this.sitesList = sitesList;
+		this.resourcePath = getClass().getResource("/").toURI().getPath();
 	}
 
 	@Override
@@ -86,9 +77,9 @@ public class OwnHttpServer implements Runnable{
             
             
             Request request = new Request(requestString);
-	        
-            
-            
+    		this.resourceFolder = new File(this.resourcePath+"/"+request.host);
+    		System.out.println("------"+this.resourceFolder.getPath()+"-------");
+
 	        // Si on ne met pas d'URI on donne la homepage
             if (HOMEPAGE.equals(request.requestURI)) {
                 nomFichier = homepage;

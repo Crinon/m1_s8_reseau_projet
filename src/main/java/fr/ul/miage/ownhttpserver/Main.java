@@ -12,15 +12,11 @@ public class Main {
 		Properties prop = new Properties();
 		InputStream inputStream = Main.class.getClassLoader().getResourceAsStream("properties");
 		prop.load(inputStream);
-        Enumeration<String> enums = (Enumeration<String>) prop.propertyNames();
-        while (enums.hasMoreElements()) {
-          String key = enums.nextElement();
-          int value = Integer.parseInt(prop.getProperty(key));
-          System.out.println(key + " : " + value);
-          RunServer runserver = new RunServer(key,value);
-          System.out.println("Démarrage de " + key);
-          runserver.start();
-          System.out.println("Suivant");
-        }
+
+		int port = Integer.parseInt(prop.getProperty("port"));
+		String[] sites = prop.getProperty("sites").split(",");
+		
+        RunServer runserver = new RunServer(port, sites);
+        runserver.start();
 	}
 }
