@@ -75,7 +75,7 @@ public class OwnHttpServer implements Runnable{
             
             
             Request request = new Request(requestString);
-    		this.resourceFolder = new File(this.resourcePath+"/"+request.host);
+    		this.resourceFolder = new File(this.resourcePath+"/"+request.resource);
     		System.out.println("------"+this.resourceFolder.getPath()+"-------");
 
 	        // Si on ne met pas d'URI on donne la homepage

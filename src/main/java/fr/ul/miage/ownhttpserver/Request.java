@@ -1,11 +1,12 @@
 package fr.ul.miage.ownhttpserver;
 
 public class Request {
-	String base64Authentification;
-	String host;
-	boolean isBasicAuth;
-	RequestType requestType;
-	String requestURI;
+	public String base64Authentification;
+	public String host;
+	public boolean isBasicAuth;
+	public RequestType requestType;
+	public String requestURI;
+	public String resource;
 
 
 	public Request(String requestString) {
@@ -41,27 +42,17 @@ public class Request {
 			// On retire le port à droite
 			this.host = words[1].split(":")[0];
 			this.host = this.host.replaceAll(" ", "");
-			System.out.println("this.host : " + this.host);
-			switch (this.host) {
-			case "miniweb.miage":
-				this.host = "miniweb";
-				break;
-			case "dopetrope.miage":
-				this.host = "dopetrope";
-				break;
-			case "projethtmldut.miage":
-				this.host = "projethtmldut";
-				break;
-			case "verti.miage":
-				this.host = "verti";
-				break;
-			default:
-				this.host=null;
+			setHostName(words[1].split(":")[0].replaceAll(" ", ""));
+			break;
+		}
+	}
+	
+	public void setHostName(String hostName) {
+		for(String host : Main.sites.keySet()) {
+			if(host != null && host.equalsIgnoreCase(hostName)) {
+				this.resource = Main.sites.get(host);
 				break;
 			}
-			System.out.println("nom d'hôte : " + words[1]);
-			System.out.println("Répertoire sélectionné : " + this.host);
-			break;
 		}
 	}
 
