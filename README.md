@@ -28,3 +28,5 @@ Le site miniweb.miage:port est protégé, vous trouverez les informations de con
 Le programme n'écoute que sur un seul port, nous voulions avoir un port par site, mais le fichier hosts ne permet pas de diriger sur un port.
 Une solution aurait été d'avoir un serveur qui écoute sur un port, et en fonction du DNS utilisé il aurait rediriger la requête vers le port du site correspondant.
 A la place, notre serveur distribue directement les fichiers du site correspondant au DNS utilisé.
+
+Toutes les fonctionnalités demandées sont implémentées

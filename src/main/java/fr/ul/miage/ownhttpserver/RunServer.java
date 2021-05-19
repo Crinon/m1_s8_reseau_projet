@@ -16,21 +16,20 @@ public class RunServer extends Thread{
 	
 	public void run() {
 		try {
-			InetAddress host;
-			host = InetAddress.getByName("0.0.0.0");
+			// Serveur local
+			InetAddress host = InetAddress.getByName("0.0.0.0");
+			// Ecoute locale sur le port donné
 	        ServerSocket srv = new ServerSocket(this.port,1, host);
+            System.out.println("Server started on port "+port);
 	        while(true) {
+	        	// Attente d'une requête
 	        	Socket socket = srv.accept();
 	        	OwnHttpServer myownserver = new OwnHttpServer(socket);
-	            System.out.println("Server started on port "+port);
 	    		Thread thread = new Thread(myownserver);
 	    		thread.start();    
 	        }
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
-
-
 	}
-	
 }

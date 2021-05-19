@@ -11,24 +11,24 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 
-
-public class OwnHttpServer implements Runnable{ 
-	// Constantes
-	private static final String HOMEPAGE = "/";
+public class OwnHttpServer implements Runnable {
+	// Requête à rediriger
+	private static final String HOMEPAGEREDIRECTION = "/";
+	// Nom du fichier pour protéger un site
 	private static final String PASSWORDFILE = ".htpasswd";
-	
+
 	// Messages
-	public static final String adressMessage = "adresse IP : %s";
-	public static final String runMessage = "Traitement d'une socket";
-	
-	// Configurations
+	public static final String adressMessage = "Remote IP : %s";
+	public static final String runMessage = "Process socket";
+
+	// Fichier a envoyer en cas de fichier non trouvé
 	public static String notFoundPageName = "404.html";
 
 	// Attribut
@@ -39,81 +39,74 @@ public class OwnHttpServer implements Runnable{
 	private File resourceFolder;
 
 	public OwnHttpServer(Socket socket) throws URISyntaxException {
-		this.socket=socket;
+		this.socket = socket;
 		this.resourcePath = getClass().getResource("/").toURI().getPath();
 	}
 
 	@Override
 	public void run() {
-		System.out.println(OwnHttpServer.runMessage);
-		System.out.println(String.format(OwnHttpServer.adressMessage, this.socket.getInetAddress()));
-        // D_claration du tableau de String pour stocker les diff_rents _l_ments de la requ_te du navigateur
-        String[] partie;
-        // D_claration d'un tableau de byte pour convertir les fichers _ envoyer au navigateur
-       
-        // D_claration du String qui recevra les noms de fichiers demand_s par l'utilisateur (retrouv_ dans "requete")
-        String nomFichier;	
-        BufferedReader rd;
+		// String recevant le nom du fichier requêté
+		String nomFichier;
+		BufferedReader rd;
 		try {
-			rd = new BufferedReader(new InputStreamReader(socket.getInputStream(),"utf8"));
-	        // Initialisation du protocole de reception de flux
+			// Lecture du flux entrant et encodage en utf8
+			rd = new BufferedReader(new InputStreamReader(socket.getInputStream(), "utf8"));
+			// Initialisation du protocole de reception de flux
 			DataOutputStream data = new DataOutputStream(socket.getOutputStream());
-			
+			// On stock la requête dans requestString
 			String requestString = "";
 			String inputLine;
-			
-            while ((inputLine = rd.readLine()) != null) {
-            	if(! "".equals(inputLine)) {
-            		requestString+=inputLine+"\n";
-            	}else {
-            		break;
-            	}
-            }
-            
-            
-            if("".equals(requestString)) {
-            	return;
-            }
-            
-            
-            Request request = new Request(requestString);
-    		this.resourceFolder = new File(this.resourcePath+"/"+request.resource);
-    		System.out.println("------"+this.resourceFolder.getPath()+"-------");
+			while ((inputLine = rd.readLine()) != null) {
+				if (!"".equals(inputLine)) {
+					requestString += inputLine + "\n";
+				} else {
+					break;
+				}
+			}
 
-	        // Si on ne met pas d'URI on donne la homepage
-            if (HOMEPAGE.equals(request.requestURI)) {
-                nomFichier = homepage;
-            } else if (folderpage.equals(request.requestURI)){
-            	nomFichier = "";
-            }else{
-                nomFichier = request.requestURI;
-            }
+			// Si la requête est vide on arrête
+			if ("".equals(requestString)) {
+				return;
+			}
 
-            
-            File file  = new File(this.resourceFolder.getAbsolutePath()+"/"+nomFichier);
-            if("".equals(nomFichier)) {
-            	file =  new File(this.resourceFolder.getAbsolutePath());
-            }
-            
-            if( !testPassword(file.getParentFile(), request.base64Authentification)) {
-            	//les lignes en commentaire permette d'envoyer l'utilisateur sur une page 403
-            	//il doit donc vider son cache pour changer de login
-            	
-            	//if(request.base64Authentification == null || "".equals(request.base64Authentification))
-            	sendLogin(data);
-            	//else
-            		//sendUnallowed(data);
-            }else {
-            	sendFileContent(nomFichier, data, folderpage.equals(request.requestURI));
-            }
-            
-            // Les donn_es, en bytes, de l'index sont envoy_es
-            
-            data.flush();
-            data.close();
-            rd.close();
-            
-	        
+			// Création d'un objet Request qui parsera les headers de la requête
+			Request request = new Request(requestString);
+			// Dossier du site demandé
+			this.resourceFolder = new File(this.resourcePath + "/" + request.resource);
+
+			// Si on ne met pas d'URI on donne la homepage index.html)
+			if (HOMEPAGEREDIRECTION.equals(request.requestURI)) {
+				nomFichier = homepage;
+				// Si on demande le listing du repertoire, on ne charge pas de fichier
+			} else if (folderpage.equals(request.requestURI)) {
+				nomFichier = "";
+			} else {
+				nomFichier = request.requestURI;
+			}
+
+			// Ouverture du fichier concerné par la requête
+			File file = new File(this.resourceFolder.getAbsolutePath() + "/" + nomFichier);
+			// Cas de dossier racine de resources
+			if ("".equals(nomFichier)) {
+				file = new File(this.resourceFolder.getAbsolutePath());
+			}
+
+			// On regarde si le site est protégé par Basic HTTP Auth et on regarde si le mot
+			// de passe est correct
+			if (!testPassword(file.getParentFile(), request.base64Authentification)) {
+				sendLogin(data);
+			} else {
+				// Si il n'y a pas de protection ou que la personne a envoyé les bonnes
+				// informations de connexion, on envoie le fichier
+				sendFileContent(nomFichier, data, folderpage.equals(request.requestURI));
+			}
+
+			// On vide les buffer
+			data.flush();
+			// Fermeture du buffer
+			data.close();
+			// Fermeture du buffer
+			rd.close();
 		} catch (UnsupportedEncodingException e) {
 			System.out.println("UnsupportedEncodingException");
 			e.printStackTrace();
@@ -123,121 +116,115 @@ public class OwnHttpServer implements Runnable{
 			e.printStackTrace();
 			return;
 		}
-
-
 	}
-	
+
+	// Fonction qui ouvre la fenêtre de basic HTP auth
 	private void sendLogin(DataOutputStream data) throws IOException {
 		data.writeBytes("HTTP/1.1 401 Unauthorized\r\n");
 		data.writeBytes("WWW-Authenticate: Basic");
 	}
-	
-	private void sendUnallowed(DataOutputStream data) throws IOException {
-		data.writeBytes("HTTP/1.1 403 Forbidden\r\n");
-	}
 
+	// Codage en byte du fichier à envoyer
 	private void sendFileContent(String nomFichier, DataOutputStream data, boolean root) throws IOException {
-		File file = new File(this.resourceFolder.getAbsolutePath()+"/"+nomFichier);
-		
-		System.out.println("Le vrai path:"+file.getPath());
-	
-        // Le tableau de bytes va recevoir byte par byte ceux composant le fichier
-        // Envoi du message de bonne reception de la requete de l'utilisateur
-        if(!file.exists()) {
-        	System.out.println("pas exist");
-        	data.writeBytes("HTTP/1.1 404 Not Found\r\n");
-        	file = new File(this.resourceFolder.getAbsolutePath()+"/"+notFoundPageName);
-        }else if(file.isDirectory()){
-        	System.out.println("folder help");
-        	data.writeBytes("HTTP/1.1 200 OK\r\n");
-        	data.writeBytes("Content-Type: text/html\r\n");
-        }else {
-        	data.writeBytes("HTTP/1.1 200 OK\r\n");
-        	
-        	if (nomFichier.endsWith(".html")) {
-                // Mention du type de donn_es envoy_es, ici du texte
-                data.writeBytes("Content-Type: text/html\r\n");				
-    		}
-    		if (nomFichier.endsWith(".gif") || nomFichier.endsWith(".jpg")) {
-                // Ici, le contenu envoy_ n'est plus du texte mais une image
-                data.writeBytes("content-type:image/gif\r\n");
-    		}
-        }
-		
-        writeFileContent(data,file, root);
+		// Fichier concerné par la requête
+		File file = new File(this.resourceFolder.getAbsolutePath() + "/" + nomFichier);
+		// Si le fichier n'existe pas et que le fichier 404.html n'existe pas non plus
+		if (!file.exists()) {
+			data.writeBytes("HTTP/1.1 404 Not Found\r\n");
+			file = new File(this.resourceFolder.getAbsolutePath() + "/" + notFoundPageName);
+		} else if (file.isDirectory()) {
+			// Cas spécifique du listing de répertoire
+			data.writeBytes("HTTP/1.1 200 OK\r\n");
+			data.writeBytes("Content-Type: text/html\r\n");
+		} else {
+			data.writeBytes("HTTP/1.1 200 OK\r\n");
+			if (nomFichier.endsWith(".html")) {
+				data.writeBytes("Content-Type: text/html\r\n");
+			}
+			if (nomFichier.endsWith(".gif") || nomFichier.endsWith(".jpg")) {
+				// Ici, le contenu envoyé est une image
+				data.writeBytes("content-type:image/gif\r\n");
+			}
+		}
+		// Envoi du ficher
+		writeFileContent(data, file, root);
 	}
 
-	
-	
-	
+	// Fonction pour gérer les headers et le contenu du fichier
 	private void writeFileContent(DataOutputStream data, File file, boolean root) throws IOException {
 		byte[] tableau = null;
-		if(file.exists()) {
-				if(file.isDirectory()) {
-					writeFolderHierarchy(data,file, root);
-					return;
-				}
-		Path path = Paths.get(file.getPath());
-        tableau = Files.readAllBytes(path);
-        
-		DataInputStream fileIn = new DataInputStream(new FileInputStream(file));
-		
-        // Mention de la longueur du fichier qui va _tre transmis (m_thode available())
-        data.writeBytes("Content-Length: " + Integer.toString(fileIn.available()) + "\r\n");
-        // Ligne vide avant l'envoi du tableau de bytes
-        fileIn.close();
+		if (file.exists()) {
+			// Listing de répertoire
+			if (file.isDirectory()) {
+				writeFolderHierarchy(data, file, root);
+				return;
+			}
+			// Chemin du fichier
+			Path path = Paths.get(file.getPath());
+			tableau = Files.readAllBytes(path);
+			// Récupération du contenu du fichier
+			DataInputStream fileIn = new DataInputStream(new FileInputStream(file));
+			// Mention de la longueur du fichier qui va être transmis
+			data.writeBytes("Content-Length: " + Integer.toString(fileIn.available()) + "\r\n");
+			fileIn.close();
 		}
-        data.writeBytes("\r\n");
-        if(tableau != null) {
-        	data.write(tableau);
-        }
-        
+		// Ligne vide avant l'envoi du tableau de bytes
+		data.writeBytes("\r\n");
+		if (tableau != null) {
+			data.write(tableau);
+		}
 	}
-	
+
+	// Fonctionnalité d'affichage de listing des fichiers
 	private void writeFolderHierarchy(DataOutputStream data, File folder, boolean root) throws IOException {
 		StringBuilder htmlCode = new StringBuilder();
-		String start = folder.getName()+"/";
-		if(root)
+		// On regarde le nom du dossier actuel s'il existe
+		String start = folder.getName() + "/";
+		if (root)
 			start = "/";
-		for(File file : folder.listFiles()) {
-			htmlCode.append("<a href=\""+start+file.getName()+"\">"+file.getName()+"</a></br>");
+		for (File file : folder.listFiles()) {
+			// Généraiton du lien
+			htmlCode.append("<a href=\"" + start + file.getName() + "\">" + file.getName() + "</a></br>");
 		}
-		
+		// Envoi de la taille du fichier généré
 		data.writeBytes("Content-Length: " + htmlCode.toString().getBytes().length + "\r\n");
 		data.writeBytes("\r\n");
+		// Envoi du fichier HTML généré
 		data.write(htmlCode.toString().getBytes());
 	}
 
-	//authentification (pas de md5 pour le moment)
+	// Authentification HTTP basique, prend en argument le répertoire de la page et le login
 	public boolean testPassword(File folder, String base64) throws IOException {
-		File passwordFile = new File(folder.getPath()+File.separator+OwnHttpServer.PASSWORDFILE);
-		System.out.println("password: "+passwordFile.getPath());
-		if(!passwordFile.exists()) {
+		// Ouverture du fichier de sécurité
+		File passwordFile = new File(folder.getPath() + File.separator + OwnHttpServer.PASSWORDFILE);
+		// En cas d'absence de fichier, la ressource est accessible
+		if (!passwordFile.exists()) {
 			return true;
 		}
-		
-			if(base64 == null || "".equalsIgnoreCase(base64))
-				return false;
-			
-			String[] credentials = new String(java.util.Base64.getDecoder().decode(base64)).split(":");
-			
-			
-			try {
-				BufferedReader reader = new BufferedReader(new FileReader(passwordFile));
-				String line; 
-				while((line = reader.readLine()) != null) {
-					String[] words = line.split(":");
-					String userName = words[0];
-					String password = words[1];
-					System.out.println(userName);
-					System.out.println(password);
-					if(userName.equalsIgnoreCase(credentials[0]) && 
-							password.equalsIgnoreCase(credentials[1]))
-						return true;
+		// Si les informations de logins ne correspondent pas à ce qui est attendu
+		if (base64 == null || "".equalsIgnoreCase(base64))
+			return false;
+		// On distingue le username de son mot de passe
+		String[] credentials = new String(Base64.getDecoder().decode(base64)).split(":");
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(passwordFile));
+			String line;
+			// Lesture de tous les logins autorisés
+			while ((line = reader.readLine()) != null) {
+				String[] words = line.split(":");
+				String userName = words[0];
+				String password = words[1];
+				// Si le login est correct alors l'accès est accepté
+				if (userName.equalsIgnoreCase(credentials[0]) && password.equalsIgnoreCase(credentials[1])) {
+					reader.close();
+					return true;
 				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 		}
+		// Si l'authentification a échoué
 		return false;
 	}
 
