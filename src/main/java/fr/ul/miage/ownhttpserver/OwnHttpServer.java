@@ -1,6 +1,7 @@
 package fr.ul.miage.ownhttpserver;
 
 import java.io.BufferedReader;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -16,6 +17,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 
 public class OwnHttpServer implements Runnable{ 
 	// Constantes
@@ -94,7 +96,13 @@ public class OwnHttpServer implements Runnable{
             }
             
             if( !testPassword(file.getParentFile(), request.base64Authentification)) {
-            	sendUnallowed(data);
+            	//les lignes en commentaire permette d'envoyer l'utilisateur sur une page 403
+            	//il doit donc vider son cache pour changer de login
+            	
+            	//if(request.base64Authentification == null || "".equals(request.base64Authentification))
+            	sendLogin(data);
+            	//else
+            		//sendUnallowed(data);
             }else {
             	sendFileContent(nomFichier, data, folderpage.equals(request.requestURI));
             }
@@ -117,6 +125,11 @@ public class OwnHttpServer implements Runnable{
 		}
 
 
+	}
+	
+	private void sendLogin(DataOutputStream data) throws IOException {
+		data.writeBytes("HTTP/1.1 401 Unauthorized\r\n");
+		data.writeBytes("WWW-Authenticate: Basic");
 	}
 	
 	private void sendUnallowed(DataOutputStream data) throws IOException {
